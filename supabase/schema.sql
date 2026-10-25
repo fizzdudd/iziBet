@@ -71,3 +71,12 @@ create policy "agregar mis favoritos" on public.favoritos
 drop policy if exists "borrar mis favoritos" on public.favoritos;
 create policy "borrar mis favoritos" on public.favoritos
   for delete using (auth.uid() = user_id);
+
+-- ─────────────────────────────────────────────────────────────
+-- Permisos de la API. Los proyectos nuevos de Supabase no exponen las
+-- tablas automáticamente: solo los usuarios con sesión (authenticated)
+-- pueden usarlas, y RLS limita cada uno a sus propias filas.
+-- Al rol anon (sin sesión) no se le da nada.
+-- ─────────────────────────────────────────────────────────────
+grant select, insert, update, delete on public.picks to authenticated;
+grant select, insert, delete on public.favoritos to authenticated;

@@ -9,12 +9,12 @@ class Env {
 
   static const supabaseUrl = String.fromEnvironment(
     'SUPABASE_URL',
-    defaultValue: 'TU_SUPABASE_URL',
+    defaultValue: 'https://pfycydgqucozfdlemylx.supabase.co',
   );
 
   static const supabaseKey = String.fromEnvironment(
     'SUPABASE_KEY',
-    defaultValue: 'TU_SUPABASE_PUBLISHABLE_KEY',
+    defaultValue: 'sb_publishable_Raqk0Q3-GmmpcouNod3iqg__BEwoD44',
   );
 
   static bool get supabaseConfigurado =>

@@ -14,7 +14,7 @@ class ConfigFaltanteScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: IziColors.negro,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
