@@ -26,6 +26,8 @@ class IziBottomNav extends StatelessWidget {
                 behavior: HitTestBehavior.opaque,
                 onTap: () => onCambiar(i),
                 child: Column(
+                  // Sin esto, la Column toma todo el alto y la barra tapa la pantalla.
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     _Icono(indice: i, activo: i == actual),
                     const SizedBox(height: 6),
