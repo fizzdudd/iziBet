@@ -6,24 +6,16 @@ import '../../core/utils/formato.dart';
 import '../../models/partido.dart';
 import 'etiqueta.dart';
 
-// Tarjeta blanca de un partido (lista del inicio, M2): hora y liga, los
-// equipos, el pick recomendado y su probabilidad con la confianza.
+// Tarjeta blanca de un partido: hora y liga, los equipos, el pick
+// recomendado y su probabilidad con la confianza.
 class PartidoCard extends StatelessWidget {
   final Partido partido;
   final VoidCallback onTap;
-  // Inicio y Partidos muestran las mismas tarjetas; el prefijo evita que
-  // dos Hero tengan el mismo tag.
-  final String heroPrefijo;
 
-  const PartidoCard({
-    super.key,
-    required this.partido,
-    required this.onTap,
-    required this.heroPrefijo,
-  });
+  const PartidoCard({super.key, required this.partido, required this.onTap});
 
-  /// El mismo tag lo recibe el detalle para la animación Hero.
-  static String heroTag(String prefijo, Partido p) => '$prefijo-partido-${p.id}';
+  /// El mismo tag lo usa el detalle para la animación Hero.
+  static String heroTag(Partido p) => 'partido-${p.id}';
 
   @override
   Widget build(BuildContext context) {
@@ -46,19 +38,14 @@ class PartidoCard extends StatelessWidget {
                     style: IziText.mono(10, color: partido.enVivo ? IziColors.naranjo : IziColors.gris5F),
                   ),
                   const SizedBox(height: 4),
+                  // El nombre "vuela" hasta el detalle con este Hero.
                   Hero(
-                    tag: heroTag(heroPrefijo, partido),
+                    tag: heroTag(partido),
                     child: Material(
                       type: MaterialType.transparency,
-                      child: Text.rich(
-                        TextSpan(
-                          style: IziText.condensed(19, height: 1),
-                          children: [
-                            TextSpan(text: partido.local.nombre.toUpperCase()),
-                            TextSpan(text: ' vs ', style: IziText.condensed(19, color: IziColors.gris8A, height: 1)),
-                            TextSpan(text: partido.visita.nombre.toUpperCase()),
-                          ],
-                        ),
+                      child: Text(
+                        partido.nombre.toUpperCase(),
+                        style: IziText.condensed(19, height: 1),
                       ),
                     ),
                   ),
