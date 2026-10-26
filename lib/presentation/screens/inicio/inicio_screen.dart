@@ -12,7 +12,6 @@ import '../../widgets/estado_vista.dart';
 import '../../widgets/filtro_ligas.dart';
 import '../../widgets/partido_card.dart';
 import '../../widgets/pick_del_dia_card.dart';
-import '../calculadora/calculadora_screen.dart';
 import '../detalle/detalle_screen.dart';
 
 // M2 — Inicio: el pick del día y los partidos con su recomendación.
@@ -42,10 +41,6 @@ class InicioScreen extends StatelessWidget {
               title: Text(auth.usuario?.email ?? '', style: IziText.mono(12, color: IziColors.grisB5)),
             ),
             ListTile(
-              title: Text('CALCULADORA DE CUOTAS', style: IziText.condensed(18, color: IziColors.blanco)),
-              onTap: () => Navigator.pop(context, 'calc'),
-            ),
-            ListTile(
               title: Text('CERRAR SESIÓN', style: IziText.condensed(18, color: IziColors.naranjo)),
               onTap: () => Navigator.pop(context, 'salir'),
             ),
@@ -54,9 +49,7 @@ class InicioScreen extends StatelessWidget {
       ),
     );
     if (!context.mounted) return;
-    if (opcion == 'calc') {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CalculadoraScreen()));
-    } else if (opcion == 'salir') {
+    if (opcion == 'salir') {
       await auth.salir(); // el AuthGate vuelve al login solo
     }
   }

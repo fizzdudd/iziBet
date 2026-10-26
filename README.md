@@ -11,7 +11,6 @@ Proyecto de la Unidad 2 de IIP323W (UDD).
 - **Motor de picks** (`lib/logic/recomendador.dart`): estima los goles esperados de cada equipo con la tabla y la forma, usa la distribución de Poisson para calcular la probabilidad de **Más/menos**, **1X2** y **Ambos marcan**, y la compara con la cuota de la casa (probabilidad implícita = 1 ÷ cuota) para encontrar *valor*.
 - **Seguir picks** y llevar un **historial** con % de acierto (tabla `picks` en Supabase).
 - **Favoritos**: ligas y equipos que sigues (tabla `favoritos` en Supabase).
-- **Calculadora** de cuota → probabilidad.
 
 ## Requisitos de la unidad
 
@@ -38,7 +37,7 @@ lib/
   logic/recomendador.dart   motor de picks (Dart puro, con pruebas)
   presentation/
     providers/              Auth, Partidos, Favoritos, Picks
-    screens/                auth, inicio, partidos, detalle, favoritos, historial, pick_form, calculadora
+    screens/                auth, inicio, partidos, detalle, favoritos, historial, pick_form
     widgets/                componentes reutilizables
 supabase/schema.sql         tablas y políticas RLS
 ```
