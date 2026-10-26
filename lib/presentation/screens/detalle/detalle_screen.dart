@@ -15,7 +15,6 @@ import '../../widgets/etiqueta.dart';
 import '../../widgets/forma_cuadros.dart';
 import '../../widgets/franja.dart';
 import '../../widgets/izi_chip.dart';
-import '../calculadora/calculadora_screen.dart';
 import '../pick_form/pick_form_screen.dart';
 
 // M3 — Detalle del partido: la recomendación explicada por mercado.
@@ -86,20 +85,6 @@ class _DetalleScreenState extends State<DetalleScreen> {
                 _PorQue(razones: m.razones),
                 const SizedBox(height: 8),
                 _FormaUltimos(local: p.local, visita: p.visita),
-                const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => CalculadoraScreen(probModelo: m.prob, cuotaInicial: m.cuota)),
-                  ),
-                  child: Container(
-                    color: IziColors.azul,
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      '¿CUÁNTO VALE LA CUOTA? →',
-                      style: IziText.condensed(17, color: IziColors.blanco),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
