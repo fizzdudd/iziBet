@@ -31,18 +31,13 @@ class AuthProvider extends ChangeNotifier {
     required String nombre,
     required String correo,
     required String clave,
-    required DateTime nacimiento,
   }) =>
       _ejecutar(
         () => _auth.signUp(
           email: correo.trim(),
           password: clave,
-          // Se guarda en los metadatos del usuario, no en una tabla aparte.
-          data: {
-            'nombre': nombre.trim(),
-            'fecha_nacimiento': nacimiento.toIso8601String().substring(0, 10),
-            'acepta_18': true,
-          },
+          // El nombre se guarda en los metadatos del usuario, no en una tabla aparte.
+          data: {'nombre': nombre.trim()},
         ),
       );
 

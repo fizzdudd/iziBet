@@ -24,13 +24,4 @@ class Formato {
   static String fechaLarga(DateTime f) =>
       '${_dias[f.weekday - 1]} ${f.day} ${_meses[f.month - 1]} · ${hora(f)}';
 
-  /// "14 / 03 / 2000"
-  static String fechaCorta(DateTime f) =>
-      '${_dos(f.day)} / ${_dos(f.month)} / ${f.year}';
-
-  /// Lunes de la semana de [f], a medianoche (para agrupar el historial).
-  static DateTime inicioSemana(DateTime f) {
-    final d = DateTime(f.year, f.month, f.day);
-    return d.subtract(Duration(days: d.weekday - 1));
-  }
 }
