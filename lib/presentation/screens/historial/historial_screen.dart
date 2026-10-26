@@ -9,13 +9,15 @@ import '../../widgets/estado_vista.dart';
 import '../../widgets/etiqueta.dart';
 import '../pick_form/pick_form_screen.dart';
 
-// Mis picks: el "ver" del CRUD. Tocar un pick lo abre para editarlo o borrarlo.
-class MisPicksScreen extends StatelessWidget {
-  const MisPicksScreen({super.key});
+// M5 — Historial y rendimiento: % de acierto y los picks seguidos.
+class HistorialScreen extends StatelessWidget {
+  const HistorialScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final prov = context.watch<PicksProvider>();
+    final pct = prov.porcentajeAcierto;
+    final barras = prov.barrasSemanales;
 
     return ColoredBox(
       color: IziColors.negro,
@@ -28,7 +30,17 @@ class MisPicksScreen extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             children: [
-              Text('MIS\nPICKS', style: IziText.display(56, color: IziColors.blanco, height: .85)),
+              Text('TU % DE ACIERTO · 30 DÍAS', style: IziText.mono(11, color: IziColors.lima)),
+              const SizedBox(height: 18),
+              Text.rich(
+                TextSpan(
+                  style: IziText.display(150, color: IziColors.blanco, height: .75),
+                  children: [
+                    TextSpan(text: pct == null ? '—' : '$pct'),
+                    const TextSpan(text: '%', style: TextStyle(color: IziColors.lima)),
+                  ],
+                ),
+              ),
               const SizedBox(height: 18),
               Row(
                 children: [
@@ -37,6 +49,39 @@ class MisPicksScreen extends StatelessWidget {
                   _Contador(numero: prov.fallos, texto: 'FALLOS', fondo: IziColors.naranjo, color: IziColors.blanco),
                   const SizedBox(width: 8),
                   _Contador(numero: prov.pendientes, texto: 'PENDIENTES', fondo: IziColors.azul, color: IziColors.blanco),
+                ],
+              ),
+              const SizedBox(height: 18),
+              // Barras: % de acierto de las últimas 8 semanas (la actual en lima).
+              SizedBox(
+                height: 80,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    for (var i = 0; i < barras.length; i++) ...[
+                      Expanded(
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 600),
+                          curve: Curves.easeOutCubic,
+                          height: barras[i] == null ? 4 : 80 * barras[i]! / 100 + 4,
+                          color: i == barras.length - 1
+                              ? IziColors.lima
+                              : (barras[i] ?? 0) >= 60
+                                  ? IziColors.blanco
+                                  : IziColors.gris55,
+                        ),
+                      ),
+                      if (i < barras.length - 1) const SizedBox(width: 6),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 6),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('HACE 8 SEMANAS', style: IziText.mono(10, color: IziColors.gris8A)),
+                  Text('ESTA SEMANA', style: IziText.mono(10, color: IziColors.gris8A)),
                 ],
               ),
               const SizedBox(height: 14),
@@ -57,7 +102,7 @@ class MisPicksScreen extends StatelessWidget {
                 const EstadoVacio(
                   oscuro: true,
                   titulo: 'Aún no sigues picks',
-                  texto: 'Abre un partido y toca "+ Seguir este pick".',
+                  texto: 'Abre un partido y toca "+ Seguir este pick" para empezar tu historial.',
                 )
               else
                 for (final p in prov.picks)

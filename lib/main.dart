@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/config/env.dart';
 import 'core/theme/izi_theme.dart';
 import 'presentation/providers/auth_provider.dart';
+import 'presentation/providers/favoritos_provider.dart';
 import 'presentation/providers/partidos_provider.dart';
 import 'presentation/providers/picks_provider.dart';
 import 'presentation/screens/auth/auth_gate.dart';
@@ -36,6 +37,7 @@ class IziBetApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => PartidosProvider()),
+        ChangeNotifierProvider(create: (_) => FavoritosProvider()),
         ChangeNotifierProvider(create: (_) => PicksProvider()),
       ],
       child: MaterialApp(

@@ -20,6 +20,16 @@ class Validadores {
   static String? requerido(String? v, String campo) =>
       v == null || v.trim().isEmpty ? 'Ingresa $campo' : null;
 
+  /// Edad cumplida a hoy.
+  static int edad(DateTime nacimiento) {
+    final hoy = DateTime.now();
+    var anios = hoy.year - nacimiento.year;
+    if (hoy.month < nacimiento.month || (hoy.month == nacimiento.month && hoy.day < nacimiento.day)) {
+      anios--;
+    }
+    return anios;
+  }
+
   /// Cuota decimal: número con coma o punto, entre 1,01 y 100.
   static String? cuota(String? v) {
     final n = double.tryParse((v ?? '').replaceAll(',', '.'));

@@ -5,43 +5,60 @@ import '../../../core/theme/izi_colors.dart';
 import '../../../core/theme/izi_text.dart';
 import '../../../models/partido.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/favoritos_provider.dart';
 import '../../providers/partidos_provider.dart';
 import '../../widgets/avatar_inicial.dart';
 import '../../widgets/estado_vista.dart';
+import '../../widgets/filtro_ligas.dart';
 import '../../widgets/partido_card.dart';
+import '../../widgets/pick_del_dia_card.dart';
 import '../detalle/detalle_screen.dart';
 
-// Inicio: los partidos de los próximos 7 días con su recomendación.
+// M2 — Inicio: el pick del día y los partidos con su recomendación.
 class InicioScreen extends StatelessWidget {
   const InicioScreen({super.key});
 
-  Future<void> _confirmarSalida(BuildContext context) async {
+  static const _hero = 'inicio';
+
+  void _abrir(BuildContext context, Partido p, String heroTag) {
+    // El partido viaja al detalle por el constructor.
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => DetalleScreen(partido: p, heroTag: heroTag)),
+    );
+  }
+
+  Future<void> _menu(BuildContext context) async {
     final auth = context.read<AuthProvider>();
-    final salir = await showDialog<bool>(
+    final opcion = await showModalBottomSheet<String>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text('¿CERRAR SESIÓN?', style: IziText.condensed(22)),
-        content: Text(auth.usuario?.email ?? '', style: IziText.body(15)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('CANCELAR', style: IziText.condensed(16)),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text('SALIR', style: IziText.condensed(16, color: IziColors.naranjo)),
-          ),
-        ],
+      backgroundColor: IziColors.negro,
+      shape: const RoundedRectangleBorder(),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text(auth.usuario?.email ?? '', style: IziText.mono(12, color: IziColors.grisB5)),
+            ),
+            ListTile(
+              title: Text('CERRAR SESIÓN', style: IziText.condensed(18, color: IziColors.naranjo)),
+              onTap: () => Navigator.pop(context, 'salir'),
+            ),
+          ],
+        ),
       ),
     );
-    // Al salir, el AuthGate vuelve al login solo.
-    if (salir == true) await auth.salir();
+    if (!context.mounted) return;
+    if (opcion == 'salir') {
+      await auth.salir(); // el AuthGate vuelve al login solo
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final prov = context.watch<PartidosProvider>();
+    final favs = context.watch<FavoritosProvider>();
 
     return Column(
       children: [
@@ -49,68 +66,85 @@ class InicioScreen extends StatelessWidget {
         Container(
           color: IziColors.negro,
           padding: EdgeInsets.fromLTRB(20, MediaQuery.paddingOf(context).top + 12, 20, 20),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('PRÓXIMOS 7 DÍAS', style: IziText.mono(11, color: IziColors.lima)),
-                    const SizedBox(height: 2),
-                    Text(
-                      'HOLA, ${auth.nombre.toUpperCase()}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: IziText.display(34, color: IziColors.blanco, height: 1),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('PRÓXIMOS 7 DÍAS', style: IziText.mono(11, color: IziColors.lima)),
+                        const SizedBox(height: 2),
+                        Text(
+                          'HOLA, ${auth.nombre.toUpperCase()}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: IziText.display(34, color: IziColors.blanco, height: 1),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  AvatarInicial(inicial: auth.inicial, onTap: () => _menu(context)),
+                ],
               ),
-              AvatarInicial(inicial: auth.inicial, onTap: () => _confirmarSalida(context)),
+              const SizedBox(height: 16),
+              const FiltroLigas(sobreOscuro: true),
             ],
           ),
         ),
-        // Lista de partidos: FutureBuilder con sus tres casos.
+        // Contenido
         Expanded(
           child: FutureBuilder<List<Partido>>(
             future: prov.partidos,
             builder: (context, snapshot) {
-              // 1) Cargando
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const EstadoCargando();
               }
-              // 2) Error
               if (snapshot.hasError) {
                 return EstadoError(
                   texto: 'No pudimos traer los partidos de ESPN. Revisa tu conexión.',
                   onReintentar: prov.recargar,
                 );
               }
-              // 3) Datos
-              final partidos = snapshot.data ?? [];
-              if (partidos.isEmpty) {
-                return const EstadoVacio(
-                  titulo: 'Sin partidos',
-                  texto: 'No hay partidos en los próximos 7 días.',
+              final lista = prov.filtrar(snapshot.data ?? [], favs);
+              if (lista.isEmpty) {
+                return EstadoVacio(
+                  titulo: prov.filtro == PartidosProvider.filtroFavs ? 'Sin favoritos aún' : 'Sin partidos',
+                  texto: prov.filtro == PartidosProvider.filtroFavs
+                      ? 'Sigue ligas o equipos en la pestaña Favoritos y aparecerán aquí.'
+                      : 'No hay partidos de esta liga en los próximos 7 días.',
+                  accion: 'Ver todas las ligas',
+                  onAccion: () => prov.cambiarFiltro(PartidosProvider.filtroTodas),
                 );
               }
+              final destacado = PartidosProvider.pickDelDia(lista);
+              final resto = lista.where((p) => p != destacado).toList();
+
               return RefreshIndicator(
                 color: IziColors.negro,
                 onRefresh: () async => prov.recargar(),
-                child: ListView.separated(
+                child: ListView(
                   padding: const EdgeInsets.all(16),
-                  itemCount: partidos.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 10),
-                  itemBuilder: (context, i) {
-                    final p = partidos[i];
-                    return PartidoCard(
-                      partido: p,
-                      // El partido viaja al detalle por el constructor.
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => DetalleScreen(partido: p)),
+                  children: [
+                    if (destacado != null) ...[
+                      PickDelDiaCard(
+                        partido: destacado,
+                        heroTag: 'pdd-${destacado.id}',
+                        onTap: () => _abrir(context, destacado, 'pdd-${destacado.id}'),
                       ),
-                    );
-                  },
+                      const SizedBox(height: 10),
+                    ],
+                    for (final p in resto) ...[
+                      PartidoCard(
+                        partido: p,
+                        heroPrefijo: _hero,
+                        onTap: () => _abrir(context, p, PartidoCard.heroTag(_hero, p)),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  ],
                 ),
               );
             },

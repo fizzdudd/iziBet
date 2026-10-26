@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../widgets/izi_bottom_nav.dart';
+import '../favoritos/favoritos_screen.dart';
+import '../historial/historial_screen.dart';
 import '../inicio/inicio_screen.dart';
-import '../mis_picks/mis_picks_screen.dart';
+import '../partidos/partidos_screen.dart';
 
-// Las dos pestañas de la barra inferior. IndexedStack mantiene el estado
-// (por ejemplo, el scroll) de cada pestaña al cambiar entre ellas.
+// Las cuatro pestañas de la barra inferior. IndexedStack mantiene el estado
+// (scroll, búsqueda) de cada pestaña al cambiar entre ellas.
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
 
@@ -23,7 +25,9 @@ class _HomeShellState extends State<HomeShell> {
         index: _pestana,
         children: const [
           InicioScreen(),
-          MisPicksScreen(),
+          PartidosScreen(),
+          FavoritosScreen(),
+          HistorialScreen(),
         ],
       ),
       bottomNavigationBar: IziBottomNav(
